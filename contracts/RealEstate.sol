@@ -58,9 +58,6 @@ function addProperty(
     });
 }
 
-
-
-
     function updateProperty(
         uint256 productId, 
         uint256 newPrice, 
@@ -69,7 +66,7 @@ function addProperty(
         string memory newPropertyAddress, 
         string memory newDescription, 
         bool newActiveStatus) external {
-            
+
         require(productId > 0 && productId <= propertyIndex, "Invalid Property ID");
         require(msg.sender == properties[productId].owner, "You are not the owner of this property");
 
