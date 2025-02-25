@@ -18,10 +18,15 @@ contract RealEstate {
         bool isActive;
     }
 
+
     // MAPPING
     mapping(uint256 => Property) private properties;
     uint256 public propertyIndex;
 
+    //EVENTS
+
+    event PropertySold(uint256 indexed id, address indexed oldOwner, address indexed newOwner, uint256 price);
+    event PropertyResold(uint256 indexed id, address indexed oldOwner, address indexed newOwner, uint256 price);
 
 
     // FONCTIONS IN CONTRACT
@@ -99,6 +104,40 @@ function getAllProperties() public view returns (Property[] memory) {
     }
     return activeProperties;
 }
+
+
+function buyProperty(uint256 productId, address buyer) external payable {
+    uint256 amount = msg.value;
+    require(amount >= properties[productId].price, "Insufficient funds");
+    
+    Property storage property = properties[productId];
+    address oldOwner = property.owner; // Store old owner before updating
+    uint256 propertyPrice = property.price; // Store price to avoid multiple storage reads
+    
+    // Update the property owner before sending funds to avoid reentrancy issues
+    property.owner = buyer;
+    
+    // Transfer only the property price to the old owner
+    (bool sent,) = payable(oldOwner).call{value: propertyPrice}("");
+    require(sent, "Payment to the owner failed");
+
+    // Refund the excess amount back to the sender
+    uint256 excessAmount = amount - propertyPrice;
+    if (excessAmount > 0) {
+        (bool refunded,) = payable(msg.sender).call{value: excessAmount}("");
+        require(refunded, "Refund failed");
+    }
+    
+    // Emit event with correct oldOwner, newOwner, and price
+    emit PropertySold(productId, oldOwner, buyer, propertyPrice);
+}
+
+
+
+
+
+// function get userProperties() 
+// function getProperty() 
 
 
 
