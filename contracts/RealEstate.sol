@@ -136,8 +136,58 @@ function buyProperty(uint256 productId, address buyer) external payable {
 
 
 
-// function get userProperties() 
-// function getProperty() 
+// function get userProperties()
+
+function getUserProperties(address user) public view returns (Property[] memory) {
+    uint256 userPropertyCount = 0;
+    for (uint256 i = 1; i <= propertyIndex; i++) {
+        if (properties[i].owner == user && properties[i].isActive) {
+            userPropertyCount++;
+        }
+    }
+
+    Property[] memory userProperties = new Property[](userPropertyCount);
+    
+    uint256 currentIndex = 0;
+    for (uint256 i = 1; i <= propertyIndex; i++) {
+        if (properties[i].owner == user && properties[i].isActive) {
+            userProperties[currentIndex] = properties[i];
+            currentIndex++;
+        }
+    }
+
+    return userProperties;
+}
+
+
+  // New function added here
+    function ownedProperties() public view returns (Property[] memory) {
+        uint256 ownedCount = 0;
+        for (uint256 i = 1; i <= propertyIndex; i++) {
+            if (properties[i].owner == msg.sender) {
+                ownedCount++;
+            }
+        }
+
+        Property[] memory ownedProps = new Property[](ownedCount);
+        uint256 currentIndex = 0;
+        for (uint256 i = 1; i <= propertyIndex; i++) {
+            if (properties[i].owner == msg.sender) {
+                ownedProps[currentIndex] = properties[i];
+                currentIndex++;
+            }
+        }
+
+        return ownedProps;
+    }
+
+
+
+function getProperty(uint256 productId) public view returns (Property memory) {
+    require(productId > 0 && productId <= propertyIndex, "Invalid Property ID");
+    return properties[productId];
+}
+
 
 
 
